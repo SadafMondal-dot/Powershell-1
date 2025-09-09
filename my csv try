@@ -1,0 +1,24 @@
+#i want to work with a cvs file. maybe extract the data from the file, pull out only the fields i would want and organize the data, then create a new csv file.
+
+message to capture when the script starts.
+Write-host "@@@@@@ Start of Script @@@@@@" -foregroundcolor Red
+
+#date and time to be kept for record keeping
+Write-Host "@@@@@@ Date & Time @@@@@@" -foregroundcolor yellow
+get-date
+
+#need to make an excel file with students and their gradess from a geometry test (daughter had a test yesterday so on my mind) I will ad like 50 kids and random grades) to keep it simple, every kid has a one letter name.
+#location of file is: C:\Users\Administrator.ADATUM\Desktop\thelist.csv
+#going to import the csv and name some variables
+$csvpath = "C:\Users\Administrator.ADATUM\Desktop\thelist.csv"
+$oneletterkids = Import-csv -path $csvpath
+
+#now grabbing what i used to barely pass the class with so anyone over the score of 65 gets a pass. gotta make another variable and string it so that it uses the equal or greater than value of 65
+$highscorers = $oneletterkids | where-object { [int]$_.Score -ge 50 }
+
+#now i want to take all the 65'ers and place them in a excel file. gotta pick a spot for the output also.
+$outputpath = "C:\Users\Administrator.ADATUM\Desktop\thepassinglist.csv"
+$highscorers | export-csv -path $outputpath
+
+Write-host "@@@@@@ End of Script @@@@@@" -foregroundcolor Red
+

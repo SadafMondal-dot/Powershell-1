@@ -1,0 +1,39 @@
+#Here we go! get a system inventory anddisplay and maybe export the information
+Write-host "@@@@@@ Start of Script @@@@@@" -foregroundcolor Red
+
+#its good to know what version of PowerShell I am on
+Write-Host "@@@@@@ PowerShell Version you working with! @@@@@@" -foregroundcolor yellow
+$PSversiontable
+
+#im going to need the latest help information! put a "#" in front of the line if already ran.
+#update-help
+
+#always good to know the date and time!
+Write-Host "@@@@@@ Date & Time @@@@@@" -foregroundcolor yellow
+Get-Date
+
+#operating system info
+Write-Host "@@@@@@ Operating System Information @@@@@@" -foregroundcolor green
+Get-ciminstance win32_operatingsystem | select-object caption, version, osarchitecture, lastbootuptime
+
+#CPU info
+Write-Host "@@@@@@ CPU Information @@@@@@" -foregroundcolor green
+Get-ciminstance win32_processor | select-object DeviceID, Name, numberofcores, maxclockspeed
+
+#Ram info
+Write-Host "@@@@@@ Memory Information @@@@@@" -foregroundcolor green
+Get-ciminstance win32_physicalmemory | select-object MemoryType, manufacturer, capacity, description
+
+#NIC info info
+Write-Host "@@@@@@ Network Adapter Information @@@@@@" -foregroundcolor green
+get-netipconfiguration
+Get-ciminstance win32_networkadapterconfiguration | select-object Servicename, DHCPenabled, description
+
+#disk info
+Write-Host "@@@@@@ Disk Information @@@@@@" -foregroundcolor green
+Get-PhysicalDiskStorageNodeView
+Get-ciminstance win32_logicaldisk | select-object Deviceid, Drivetype, freespace
+
+Write-host "@@@@@@ End of Script @@@@@@" -foregroundcolor Red
+
+
