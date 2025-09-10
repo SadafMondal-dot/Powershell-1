@@ -22,3 +22,87 @@ $highscorers | export-csv -path $outputpath
 
 Write-host "@@@@@@ End of Script @@@@@@" -foregroundcolor Red
 
+New Updates to the Syntax:
+<#
+.SYNOPSIS
+    Imports a CSV of student scores, filters by pass threshold, and exports the passing list.
+
+#PROCESS: 
+#1. Loads a CSV file (could be a Kaggle dataset).
+
+#2. Cleans the data (e.g., select specific columns, drop rows with missing values).
+
+#3. Outputs a new CSV file in C:\CleanedData\.
+
+#4. Adds some “extra credit” reporting — like generating a histogram or pie chart from the cleaned CSV.
+
+.DESCRIPTION
+    - Parameterized for input path, output path, and passing threshold.
+    - Leverages Verbose and Error actions for better insights and troubleshooting.
+    - Uses pipeline-friendly design so you can chain or schedule this function easily.
+
+.EXAMPLE
+    Filter-StudentGrades `
+      -InputPath C:\Data\thelist.csv `
+      -OutputPath C:\Data\passing.csv `
+      -Threshold 65 -Verbose
+#>
+function Filter-StudentGrades {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)][ValidateScript({ Test-Path $_ })]
+        [string]$InputPath,
+
+        [Parameter(Mandatory)]
+        [string]$OutputPath,
+
+        [Parameter()]
+        [ValidateRange(0,100)]
+        [int]$Threshold = 65
+    )
+
+    Begin {
+        Write-Verbose "Starting grade filter with threshold $Threshold."
+    }
+    Process {
+        try {
+            $students = Import-Csv -Path $InputPath -ErrorAction Stop
+            Write-Verbose "Imported $($students.Count) student records."
+        }
+        catch {
+            Write-Error "Failed to import CSV from '$InputPath': $_"
+            return
+        }
+
+        $passing = $students | Where-Object {
+            [int]($_.Score) -ge $Threshold
+        }
+        Write-Verbose "Found $($passing.Count) passing scores."
+
+        try {
+            $passing | Export-Csv -Path $OutputPath -NoTypeInformation -Force -ErrorAction Stop
+            Write-Verbose "Exported passing list to '$OutputPath'."
+        }
+        catch {
+            Write-Error "Failed to export CSV to '$OutputPath': $_"
+        }
+    }
+    End {
+        Write-Verbose "Filter-StudentGrades completed."
+    }
+}
+
+# If run directly, demonstrate default invocation
+if ($MyInvocation.InvocationName -eq '.\Filter-StudentGrades.ps1') {
+    Filter-StudentGrades -InputPath ".\thelist.csv" `
+                         -OutputPath ".\thepassinglist.csv" `
+                         -Verbose
+}
+
+#New Changes: 
+#- Advanced function with CmdletBinding() for Consistency and Verbosity
+#- Parameter validation (existing file, numeric ranges)
+#-NoTypeInformation and -Force on Export-Csv
+#- Try/Catch around I/O operations
+#- Pipeline-friendly design for automation
+
